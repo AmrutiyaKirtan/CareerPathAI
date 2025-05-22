@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI - Upload Resume</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/home.css">
+    <style>
+        .hero {
+            min-height: calc(30vh - 6rem);
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            align-items: center;
+            text-align: center;
+            padding: 0 2rem;
+            margin-top: 100px;
+        }
+
+        .upload-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #666;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .upload-area p {
+            margin: 1rem 0;
+            color: #666;
+        }
+
+        .upload-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #333;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .upload-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+
+        #file-name {
+            margin-top: 1rem;
+            color: #666;
+        }
+
+        .preview-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container"></div>
+    
+    <header>
+        <nav>
+            <div class="logo">ResumeAI</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="#">About</a>
+                <a href="#">Services</a>
+                <a href="#">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Upload Your Resume</h1>
+            <p class="subtitle">Let AI analyze and improve your resume</p>
+        </section>
+
+        <div class="upload-container">
+            <form id="upload-form" action="/upload-resume" method="POST" enctype="multipart/form-data">
+                <div class="upload-area" id="drop-zone">
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                    <p>Drag and drop your resume image here</p>
+                    <p>or</p>
+                    <button type="button" class="upload-btn" onclick="document.getElementById('file-input').click()">
+                        Choose File
+                    </button>
+                    <p id="file-name"></p>
+                </div>
+                <div class="preview-container" id="preview-container">
+                    <h3>Preview:</h3>
+                    <img id="preview-image" src="" alt="Resume preview">
+                </div>
+                <button type="submit" class="upload-btn" style="width: 100%;">Analyze Resume</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileName = document.getElementById('file-name');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImage = document.getElementById('preview-image');
+
+        // Handle file selection
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Handle drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#4a90e2';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ccc';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ccc';
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    fileName.textContent = `Selected file: ${file.name}`;
+                    
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImage.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Please upload an image file');
+                }
+            }
+        }
+    </script>
+    <script src="/static/home.js"></script>
+</body>
+</html>

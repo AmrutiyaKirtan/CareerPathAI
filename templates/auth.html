@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome</h1>
+        
+        <div class="form-toggle">
+            <button id="login-toggle" class="active">Login</button>
+            <button id="signup-toggle">Signup</button>
+        </div>
+        
+        <div id="login-form" class="form">
+            <form action="/login" method="post">
+                <div class="input-group">
+                    <label for="login-name">Name</label>
+                    <input type="text" name="name" placeholder="Name" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" name="password" placeholder="Password" required>
+                </div>
+                
+                <button type="submit">Login</button>
+            </form>
+        </div>
+        
+        <div id="signup-form" class="form hidden">
+            <form action="/signup" method="post">
+                <div class="input-group">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" placeholder="Name" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" name="email" placeholder="Email" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" name="password" placeholder="Password" required>
+                </div>
+                
+                <button type="submit">Signup</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('signup-form').classList.add('hidden');
+
+        document.getElementById('login-toggle').addEventListener('click', function() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('signup-form').classList.add('hidden');
+            document.getElementById('login-toggle').classList.add('active');
+            document.getElementById('signup-toggle').classList.remove('active');
+        });
+        
+        document.getElementById('signup-toggle').addEventListener('click', function() {
+            document.getElementById('signup-form').classList.remove('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('signup-toggle').classList.add('active');
+            document.getElementById('login-toggle').classList.remove('active');
+        });
+    </script>
+</body>
+</html>

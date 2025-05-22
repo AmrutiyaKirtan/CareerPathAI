@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/home.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="canvas-container"></div>
+    
+    <header>
+        <nav>
+            <div class="logo">ResumeAI</div>
+            <div class="nav-links">
+                <a href="#" class="active">Home</a>
+                <a href="#">About</a>
+                <a href="#">Services</a>
+                <a href="#">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Welcome, {{ name }}</h1>
+            <p class="subtitle">Crafting the perfect resume with AI</p>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <a href="/templates/resume.html" style="text-decoration: none; color: inherit;">
+                    <h2>ResumeAI</h2>
+                    <p>Build smarter resumes with instant AI feedback.</p>
+                </a>
+            </div>
+            <div class="feature-card">
+                <h2>InterviewAI</h2>
+                <p>Practice real interviews with your personal AI coach.</p>
+            </div>
+            <div class="feature-card">
+                <h2>Find Jobs</h2>
+                <p>Discover trending jobs tailored to your skills.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/home.js"></script>
+</body>
+</html>
