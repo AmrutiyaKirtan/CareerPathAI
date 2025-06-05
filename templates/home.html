@@ -15,7 +15,7 @@
         <nav>
             <div class="logo">ResumeAI</div>
             <div class="nav-links">
-                <a href="#" class="active">Home</a>
+                <a href="{{ url_for('home.home_page') }}" class="active">Home</a>
                 <a href="#">About</a>
                 <a href="#">Services</a>
                 <a href="#">Contact</a>
@@ -31,7 +31,7 @@
 
         <section class="features">
             <div class="feature-card">
-                <a href="/templates/resume.html" style="text-decoration: none; color: inherit;">
+                <a href="{{ url_for('home.resume_page') }}" style="text-decoration: none; color: inherit;">
                     <h2>ResumeAI</h2>
                     <p>Build smarter resumes with instant AI feedback.</p>
                 </a>

@@ -6,6 +6,10 @@
     <title>ResumeAI - Upload Resume</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/home.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
     <style>
         .hero {
             min-height: calc(30vh - 6rem);
@@ -76,14 +80,129 @@
             color: #666;
         }
 
-        .preview-container {
-            margin-top: 2rem;
+        /* New styles for the analysis layout */
+        .analysis-container {
             display: none;
+            margin: 2rem auto;
+            max-width: 1600px;
+            padding: 0 1rem;
         }
 
-        .preview-container img {
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            min-height: 600px;
+            padding: 10px;
+            margin: auto;
+        }
+
+        .resume-preview {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+            max-height: 800px;
+        }
+
+        .resume-preview h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .resume-preview canvas {
             max-width: 100%;
+            height: auto !important;
+            object-fit: contain;
+        }
+
+        .ai-review {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .ai-review h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .pdf-preview {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ccc;
             border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .pdf-preview canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .pdf-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .pdf-controls button {
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .pdf-controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .pdf-page-info {
+            text-align: center;
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .ai-review-content {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .loading-spinner::after {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -94,7 +213,7 @@
         <nav>
             <div class="logo">ResumeAI</div>
             <div class="nav-links">
-                <a href="/">Home</a>
+                <a href="{{ url_for('home.home_page') }}">Home</a>
                 <a href="#">About</a>
                 <a href="#">Services</a>
                 <a href="#">Contact</a>
@@ -111,20 +230,36 @@
         <div class="upload-container">
             <form id="upload-form" action="/upload-resume" method="POST" enctype="multipart/form-data">
                 <div class="upload-area" id="drop-zone">
-                    <input type="file" id="file-input" accept="image/*" style="display: none;">
-                    <p>Drag and drop your resume image here</p>
-                    <p>or</p>
+                    <input type="file" id="file-input" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png" style="display: none;">
+                    <p>Drag and drop your resume here</p>
+                    <p>Accepted formats: PDF, DOC, DOCX, TXT, JPG, PNG</p>
                     <button type="button" class="upload-btn" onclick="document.getElementById('file-input').click()">
                         Choose File
                     </button>
                     <p id="file-name"></p>
                 </div>
-                <div class="preview-container" id="preview-container">
-                    <h3>Preview:</h3>
-                    <img id="preview-image" src="" alt="Resume preview">
-                </div>
                 <button type="submit" class="upload-btn" style="width: 100%;">Analyze Resume</button>
             </form>
+        </div>
+
+        <div class="analysis-container" id="analysis-container">
+            <div class="analysis-grid">
+                <div class="resume-preview">
+                    <h2>Resume Preview</h2>
+                    <div id="preview-content"></div>
+                </div>
+                <div class="ai-review">
+                    <h2>AI Analysis</h2>
+                    <div class="loading-spinner" id="loading-spinner"></div>
+                    <div class="ai-review-content" id="ai-review-content">
+                        {% if ai_feedback %}
+                            {{ ai_feedback|safe }}
+                        {% else %}
+                            <p>No AI analysis available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -132,8 +267,14 @@
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const fileName = document.getElementById('file-name');
-        const previewContainer = document.getElementById('preview-container');
-        const previewImage = document.getElementById('preview-image');
+        const analysisContainer = document.getElementById('analysis-container');
+        const previewContent = document.getElementById('preview-content');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const aiReviewContent = document.getElementById('ai-review-content');
+        let currentPdfDoc = null;
+        let currentPage = 1;
+        let totalPages = 0;
+        let selectedFile = null;
 
         // Handle file selection
         fileInput.addEventListener('change', handleFileSelect);
@@ -161,24 +302,135 @@
             handleFiles(files);
         }
 
-        function handleFiles(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.type.startsWith('image/')) {
-                    fileName.textContent = `Selected file: ${file.name}`;
-                    
-                    // Show preview
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        previewImage.src = e.target.result;
-                        previewContainer.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    alert('Please upload an image file');
-                }
+        async function renderPdfPage(pdfDoc, pageNum) {
+            const page = await pdfDoc.getPage(pageNum);
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // Calculate scale to fit width
+            const containerWidth = previewContent.clientWidth - 40; // Account for padding
+            const viewport = page.getViewport({ scale: 1.0 });
+            const scale = containerWidth / viewport.width;
+            
+            // Set canvas dimensions
+            const scaledViewport = page.getViewport({ scale: scale });
+            canvas.width = scaledViewport.width;
+            canvas.height = scaledViewport.height;
+
+            // Render PDF page
+            await page.render({
+                canvasContext: context,
+                viewport: scaledViewport
+            }).promise;
+
+            return canvas;
+        }
+
+        function updatePdfControls() {
+            const controls = document.createElement('div');
+            controls.className = 'pdf-controls';
+            controls.innerHTML = `
+                <button onclick="changePage(-1)" ${currentPage <= 1 ? 'disabled' : ''}>Previous</button>
+                <span class="pdf-page-info">Page ${currentPage} of ${totalPages}</span>
+                <button onclick="changePage(1)" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>
+            `;
+            return controls;
+        }
+
+        async function changePage(delta) {
+            if (!currentPdfDoc) return;
+            
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                const canvas = await renderPdfPage(currentPdfDoc, currentPage);
+                previewContent.innerHTML = '';
+                previewContent.appendChild(canvas);
+                previewContent.appendChild(updatePdfControls());
             }
         }
+
+        async function handleFiles(files) {
+            if (files.length > 0) {
+                selectedFile = files[0];
+                fileName.textContent = `Selected file: ${selectedFile.name}`;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('upload-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!selectedFile) {
+                alert('Please select a file first');
+                return;
+            }
+
+            // Show analysis container and loading spinner
+            analysisContainer.style.display = 'block';
+            loadingSpinner.style.display = 'block';
+            aiReviewContent.innerHTML = '';
+
+            // Scroll to analysis container
+            analysisContainer.scrollIntoView({ behavior: 'smooth' });
+
+            // Handle file preview
+            const fileType = selectedFile.type;
+            if (fileType === 'application/pdf') {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const typedarray = new Uint8Array(e.target.result);
+                        currentPdfDoc = await pdfjsLib.getDocument(typedarray).promise;
+                        totalPages = currentPdfDoc.numPages;
+                        currentPage = 1;
+
+                        const canvas = await renderPdfPage(currentPdfDoc, currentPage);
+                        previewContent.innerHTML = '';
+                        previewContent.appendChild(canvas);
+                        previewContent.appendChild(updatePdfControls());
+                    } catch (error) {
+                        previewContent.innerHTML = `
+                            <div style="padding: 20px; background: #f5f5f5; border-radius: 5px;">
+                                <p style="margin: 0; color: #ff0000;">Error loading PDF: ${error.message}</p>
+                            </div>`;
+                    }
+                };
+                reader.readAsArrayBuffer(selectedFile);
+            } else if (fileType.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewContent.innerHTML = `<img src="${e.target.result}" alt="Resume preview" style="max-width: 100%; height: auto;">`;
+                };
+                reader.readAsDataURL(selectedFile);
+            } else {
+                previewContent.innerHTML = `
+                    <div style="padding: 20px; background: #f5f5f5; border-radius: 5px;">
+                        <p style="margin: 0;">File selected: ${selectedFile.name}</p>
+                        <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #666;">Preview is not available for this file type.</p>
+                    </div>`;
+            }
+
+            // Simulate AI analysis (replace with actual API call)
+            setTimeout(() => {
+                loadingSpinner.style.display = 'none';
+                aiReviewContent.innerHTML = `
+                    <h3>Resume Analysis</h3>
+                    <p>Your resume has been analyzed. Here are the key findings:</p>
+                    <ul>
+                        <li>Format: Professional and well-structured</li>
+                        <li>Content: Comprehensive and detailed</li>
+                        <li>Skills: Well-presented and relevant</li>
+                        <li>Experience: Clear and impactful</li>
+                    </ul>
+                    <h3>Suggestions for Improvement</h3>
+                    <ul>
+                        <li>Add more quantifiable achievements</li>
+                        <li>Include relevant certifications</li>
+                        <li>Optimize keywords for ATS systems</li>
+                    </ul>`;
+            }, 2000);
+        });
     </script>
     <script src="/static/home.js"></script>
 </body>
