@@ -11,5 +11,5 @@ def home_page():
 @home.route('/resume')
 def resume_page():
     if 'name' in session:
-        return render_template('resume.html')
+        return render_template('resume1.html')
     return redirect(url_for('auth.index'))

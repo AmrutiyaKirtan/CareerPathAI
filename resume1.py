@@ -1,16 +1,16 @@
 from PIL import Image
 from google import genai
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, Blueprint
 import io
 
-app = Flask(__name__)
+resume1 = Blueprint('resume1', __name__)
 client = genai.Client(api_key="AIzaSyBMa2hRCbDsdqw-Vm7WhJ8xsRgEtrjrRLs")
 
-@app.route('/')
+@resume1.route('/')
 def home():
-    return render_template('test1.html')
+    return render_template('resume1.html')
 
-@app.route('/upload', methods=['POST'])
+@resume1.route('/upload', methods=['POST'])
 def upload_file():
     if 'image' not in request.files:
         return 'No image uploaded', 400

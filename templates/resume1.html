@@ -79,13 +79,14 @@
             resultDiv.style.display = 'none';
             
             try {
-                const response = await fetch('/upload', {
+                const response = await fetch('/resume/upload', {
                     method: 'POST',
                     body: formData
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Upload failed');
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Upload failed');
                 }
                 
                 const text = await response.text();
@@ -96,6 +97,7 @@
             } catch (error) {
                 resultDiv.textContent = 'Error: ' + error.message;
                 resultDiv.style.display = 'block';
+                console.error('Upload error:', error);
             } finally {
                 loadingDiv.style.display = 'none';
             }

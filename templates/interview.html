@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Interview - ResumeAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">ResumeAI</div>
+            <div class="nav-links">
+                <a href="{{ url_for('home.home_page') }}">Home</a>
+                <a href="#">About</a>
+                <a href="#">Services</a>
+                <a href="{{ url_for('interview.mock_interview') }}" class="active">InterviewAI</a>
+                <a href="#">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="interview-section">
+            <h1>Welcome to your Mock Interview, {{ name }}</h1>
+            <div class="interview-container">
+                <div class="interview-chat">
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Chat messages will appear here -->
+                    </div>
+                    <form id="interview-form" class="chat-input">
+                        <input type="text" id="user-input" placeholder="Type your answer here..." required>
+                        <button type="submit">Send</button>
+                    </form>
+                </div>
+                <div class="interview-info">
+                    <h2>Interview Tips</h2>
+                    <ul>
+                        <li>Be clear and concise in your answers</li>
+                        <li>Use specific examples from your experience</li>
+                        <li>Maintain a professional tone</li>
+                        <li>Take your time to think before answering</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/interview.js"></script>
+</body>
+</html> 

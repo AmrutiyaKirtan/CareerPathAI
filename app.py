@@ -2,7 +2,9 @@ from flask import Flask
 from flask_mysqldb import MySQL
 from auth import auth
 from home import home
-from resume import resume
+from resume1 import resume1
+from interview import interview
+
 
 app = Flask(__name__)
 app.secret_key = 'Kirtan95109'  # Change this to a random secret key
@@ -16,7 +18,9 @@ mysql = MySQL(app)
 # Register blueprints
 app.register_blueprint(auth)
 app.register_blueprint(home)
-app.register_blueprint(resume, url_prefix='/resume')  # Add url_prefix for resume routes
+app.register_blueprint(resume1, url_prefix='/resume')  # Add url_prefix for resume routes
+app.register_blueprint(interview, url_prefix='/interview')  # Add url_prefix for interview routes
+
 
 if __name__ == '__main__':
     print("Starting Flask application...")  # Debugging line
