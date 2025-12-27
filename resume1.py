@@ -4,7 +4,7 @@ from flask import Flask, request, render_template, Blueprint
 import io
 
 resume1 = Blueprint('resume1', __name__)
-client = genai.Client(api_key="AIzaSyBMa2hRCbDsdqw-Vm7WhJ8xsRgEtrjrRLs")
+client = genai.Client(api_key="your_api_key_here")
 
 @resume1.route('/')
 def home():
