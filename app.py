@@ -7,10 +7,10 @@ from interview import interview
 
 
 app = Flask(__name__)
-app.secret_key = 'Kirtan95109'  # Change this to a random secret key
+app.secret_key = 'your password here'  # Change this to a random secret key
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Kirtan95109'
+app.config['MYSQL_PASSWORD'] = 'your password here'
 app.config['MYSQL_DB'] = 'user_info'
 
 mysql = MySQL(app)
